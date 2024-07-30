@@ -1,0 +1,126 @@
+<div
+  class="relative h-full flex flex-col"
+  cdkDropList
+  [cdkDropListData]="announcements"
+  (cdkDropListDropped)="onDrop($event)"
+  style="background-color: aliceblue"
+>
+  <span
+    [ngStyle]="{
+      'font-family': 'cursive',
+      'font-size': 'x-large',
+      color: isCurrentMonth ? '#1E3A8A' : '#747d8d'
+    }"
+    class="mb-2"
+  >
+    {{ date }}
+  </span>
+
+  <div class="overflow-y-auto space-y-1 scrollbar-hide">
+    <div
+      *ngFor="let announcement of announcements"
+      class="text-xs bg-purple-200 text-purple-800 p-1 rounded truncate cursor-pointer hover:bg-purple-300"
+      [title]="announcement.name + ': ' + announcement.description"
+      (click)="openAnnouncementModal(announcement)"
+      cdkDrag
+    >
+      {{ announcement.name }}
+    </div>
+  </div>
+
+  <button
+    (click)="openAnnouncementModal()"
+    class="absolute top-1 right-1 p-2 rounded-full text-customBlue hover:text-white hover:bg-customBlue focus:outline-none transition duration-300 ease-in-out transform hover:scale-110"
+    [ngClass]="{
+      'text-customBlue hover:bg-customBlue': isCurrentMonth,
+      'text-gray-500 hover:bg-gray-500': !isCurrentMonth
+    }"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="h-5 w-5"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </button>
+</div>
+<app-modal [show]="showModal" (close)="closeAnnouncementModal()">
+  <h2 class="text-xl font-bold mb-4">
+    {{ isEditing ? "Edit" : "Add" }} Announcement
+  </h2>
+  <form [formGroup]="announcementForm" (ngSubmit)="saveAnnouncement()">
+    <div class="mb-4">
+      <label for="name" class="block text-sm font-medium text-gray-700"
+        >Announcement Name</label
+      >
+      <input
+        type="text"
+        id="name"
+        formControlName="name"
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      />
+      <ng-container *ngIf="formErrors$ | async as errors">
+        <div *ngFor="let error of errors" class="text-red-500 text-xs mt-1">
+          {{ error }}
+        </div>
+      </ng-container>
+    </div>
+    <div class="mb-4">
+      <label for="description" class="block text-sm font-medium text-gray-700"
+        >Description</label
+      >
+      <textarea
+        id="description"
+        formControlName="description"
+        rows="3"
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      ></textarea>
+      <div
+        *ngIf="
+          announcementForm.get('description')?.invalid &&
+          (announcementForm.get('description')?.dirty ||
+            announcementForm.get('description')?.touched)
+        "
+        class="text-red-500 text-xs mt-1"
+      >
+        <div *ngIf="announcementForm.get('description')?.errors?.['maxlength']">
+          {{ commonMessagingKeys.ERROR_DESCRIPTION_LENGTH }}
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-between items-center">
+      <div>
+        <button
+          *ngIf="isEditing"
+          type="button"
+          (click)="deleteAnnouncement()"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Delete
+        </button>
+      </div>
+      <div class="flex space-x-2">
+        <button
+          type="button"
+          (click)="closeAnnouncementModal()"
+          class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="!announcementForm.valid"
+          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-customBlue hover:bg-customBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ isEditing ? "Update" : "Save" }}
+        </button>
+      </div>
+    </div>
+  </form>
+</app-modal>

@@ -1,0 +1,42 @@
+<div class="container mx-auto mt-4">
+  <div class="rounded-lg shadow overflow-hidden" style="background-color: #F8F9FA;">
+    <div class="flex items-center justify-between py-2 px-6" style="color: #1E3A8A; background-color: aliceblue;">
+      <button (click)="previousMonth()" 
+        class="p-2 rounded-full text-blue-800 hover:text-white hover:bg-blue-800 focus:outline-none transition duration-300 ease-in-out transform hover:scale-110">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <div>
+        <span class="text-2xl font-bold">{{ currentDate$ | async | date:'MMMM yyyy' }}</span>
+      </div>
+      <button (click)="nextMonth()" 
+        class="p-2 rounded-full text-blue-800 hover:text-white hover:bg-blue-800 focus:outline-none transition duration-300 ease-in-out transform hover:scale-110">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+
+    <ng-container *ngIf="calendarDays$ | async as calendarDays">
+      <div class="grid grid-cols-7 gap-1 p-2 mx-14">
+        <div *ngFor="let day of weekdays" class="text-center text-sm font-medium py-2" style="color: #1E3A8A; background-color: #b2d9fc;">
+          {{ day }}
+        </div>
+        <div *ngFor="let day of calendarDays; trackBy: trackByDay" 
+             class="border-1 rounded-lg p-2 h-24" 
+             [ngStyle]="{'border-color': day.isCurrentMonth ? '#1E3A8A' : '#6B7280', 'background-color': 'aliceblue'}"
+             [ngClass]="{'bg-gray-100': !day.isCurrentMonth, 'bg-white': day.isCurrentMonth}">
+          <app-day-cell 
+            [date]="day.date" 
+            [isCurrentMonth]="day.isCurrentMonth"
+            [currentMonth$]="currentDate$"
+            [announcements]="day.announcements"
+            (saveAnnouncements)="onSaveAnnouncements($event)">
+          </app-day-cell>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
